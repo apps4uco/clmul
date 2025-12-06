@@ -1,3 +1,5 @@
+//#![no_std] TODO remove println from tests
+#![cfg_attr(not(test), no_std)]
 #![warn(missing_docs)]
 #![warn(rustdoc::missing_crate_level_docs)]
 
@@ -8,8 +10,8 @@
 //! * Carry-Less Multiply
 //! * Carry-Less Product
 //!
+//! Maybe one day this functionality will be present in the core or std Rust libraries.
 
-mod clmul_demo;
 pub mod clmul_inv;
 pub mod morton;
 mod transpose;
@@ -22,16 +24,35 @@ mod transpose;
 pub fn clmul(a: u64, b: u64) -> u128 {
     //Intel’s PCLMULQDQ instruction (part of the CLMUL extension,
 
-    // Dynamic Detection.
-    #[cfg(target_arch = "aarch64")]
-    {
-        use std::arch::is_aarch64_feature_detected;
-        if is_aarch64_feature_detected!("neon") && is_aarch64_feature_detected!("aes") {
-            // SAFETY: target_features "neon" and "aes" are available in this block.
-            return unsafe { clmul_aarch64_neon(a, b) };
-        }
+    #[cfg(all(target_arch = "x86_64", target_feature = "pclmulqdq"))]
+    return clmul_intel(a, b);
+
+    #[cfg(all(
+        target_arch = "aarch64",
+        target_feature = "neon",
+        target_feature = "aes"
+    ))]
+    return clmul_aarch64_neon(a, b);
+
+    //    #[allow(unreachable_code)]
+    #[cfg(not(any(
+        all(target_arch = "aarch64", target_feature = "neon"),
+        all(target_arch = "x86_64", target_feature = "pclmulqdq")
+    )))]
+    return clmul_nosimd(a, b);
+}
+
+#[cfg(all(target_arch = "x86_64", target_feature = "pclmulqdq"))]
+fn clmul64_intel(a: u64, b: u64) -> u64 {
+    use core::arch::x86_64::*;
+    // SAFETY: target_features "x86_64" and "pclmulqdq" are available in this function.
+    unsafe {
+        _mm_cvtsi128_si64(_mm_clmulepi64_si128(
+            _mm_cvtsi64_si128(a as i64),
+            _mm_cvtsi64_si128(b as i64),
+            0,
+        )) as u64
     }
-    clmul_nosimd(a, b)
 }
 
 /// This intrinsic corresponds to the <c> VPCLMULQDQ </c> instruction.
@@ -57,9 +78,9 @@ pub fn clmul(a: u64, b: u64) -> u128 {
     target_feature = "neon",
     target_feature = "aes"
 ))]
-unsafe fn clmul_aarch64_neon(a: u64, b: u64) -> u128 {
+fn clmul_aarch64_neon(a: u64, b: u64) -> u128 {
     // SAFETY: target_features "neon" and "aes" are available in this function.
-    core::arch::aarch64::vmull_p64(a, b)
+    unsafe { core::arch::aarch64::vmull_p64(a, b) }
 }
 
 // #[cfg(not(any(all(target_arch="aarch64", target_feature="neon"), all(target_arch = "x86_64", target_feature = "pclmulqdq")))]

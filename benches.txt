@@ -1,0 +1,22 @@
+# MacBook Air M1
+
+clmul                   time:   [956.28 ps 957.02 ps 958.24 ps]
+
+morton u64*2 using clmul
+                        time:   [1.5932 ns 1.5939 ns 1.5946 ns]
+
+morton u64x2 using this_crate magic numbers
+                        time:   [1.5669 ns 1.5683 ns 1.5697 ns]
+
+morton-encoding u32x2 crate
+                        time:   [44.105 ns 44.125 ns 44.150 ns]
+
+morton u16x2 crate      time:   [998.90 ps 1.0020 ns 1.0068 ns]
+
+zorder u16x2 crate      time:   [1.7013 ns 1.7048 ns 1.7079 ns]
+
+zorder u32x2 crate      time:   [1.9063 ns 1.9070 ns 1.9079 ns]
+
+dilate u32x2 crate      time:   [1.9448 ns 1.9511 ns 1.9638 ns]
+
+insides u32x2 crate     time:   [1.9069 ns 1.9085 ns 1.9106 ns]

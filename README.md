@@ -6,6 +6,9 @@ Otherwise known as:
 * Carry-Less Multiply
 * Carry-Less Product
 
+# WARNING! 
+
+This crate has only been tested on Apple Silicon, please file a bug report if you encounter any problems.
 
 # TL;DR;
 
@@ -16,6 +19,16 @@ Current version: 0.5.0
 License: MIT OR Apache-2.0
 
 ## Use
+
+```rust 
+use clmul::clmul;
+
+//clmul(a:u64,b:u64);
+let res=clmul(4,u64:MAX);
+```
+```
+```
+```
 
 To quote
 [RISC-V Bitmanip Extension V0.90 23](https://raw.githubusercontent.com/riscv/riscv-bitmanip/master/bitmanip-0.90.pdf):

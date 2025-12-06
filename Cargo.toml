@@ -1,20 +1,22 @@
 [package]
 name = "clmul"
 version = "0.5.0"
-edition = "2021"
+edition = "2024"
 license = "MIT OR Apache-2.0"
 readme = "README.md"
 repository = "https://github.com/apps4uco/clmul"
 documentation = "https://docs.rs/clmul"
 keywords = ["clmul", "morton", "intrinsic"]
 categories=["algorithms","encoding","hardware-support","mathematics","no-std"]
-rust-version = "1.70"
+#rust-version = "1.70"
 description="Carry-less multiply for Rust, internally uses compiler intrinsics, with fallback if the CPU has no clmul instruction"
 
 [dependencies]
 
 [dev-dependencies]
-criterion = "0.5.1"
+criterion = "0.8.0"
+dilate = "0.6.3"
+insides = "0.1.2"
 morton = "0.3.0"
 morton-encoding = "2.0.1"
 morton-index = "0.3.0"
