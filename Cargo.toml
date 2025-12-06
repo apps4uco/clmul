@@ -13,6 +13,12 @@ description="Carry-less multiply for Rust, internally uses compiler intrinsics, 
 
 [dependencies]
 
+[features]
+default=[]
+morton=[]
+transpose=[]
+clmul_inv=[]
+
 [dev-dependencies]
 criterion = "0.8.0"
 dilate = "0.6.3"
@@ -25,3 +31,4 @@ zorder = "0.2.2"
 [[bench]]
 name = "benchmark"
 harness = false
+required-features = ["morton"]

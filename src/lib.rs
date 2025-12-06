@@ -12,8 +12,11 @@
 //!
 //! Maybe one day this functionality will be present in the core or std Rust libraries.
 
+#[cfg(feature = "clmul_inv")]
 pub mod clmul_inv;
+#[cfg(feature = "morton")]
 pub mod morton;
+#[cfg(feature = "transpose")]
 mod transpose;
 
 /**
