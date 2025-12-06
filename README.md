@@ -26,9 +26,6 @@ use clmul::clmul;
 //clmul(a:u64,b:u64);
 let res=clmul(4,u64:MAX);
 ```
-```
-```
-```
 
 To quote
 [RISC-V Bitmanip Extension V0.90 23](https://raw.githubusercontent.com/riscv/riscv-bitmanip/master/bitmanip-0.90.pdf):
