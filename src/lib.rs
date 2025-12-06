@@ -24,6 +24,7 @@ mod transpose;
  *
  *
  */
+#[inline]
 pub fn clmul(a: u64, b: u64) -> u128 {
     //Intel’s PCLMULQDQ instruction (part of the CLMUL extension,
 
@@ -46,6 +47,7 @@ pub fn clmul(a: u64, b: u64) -> u128 {
 }
 
 #[cfg(all(target_arch = "x86_64", target_feature = "pclmulqdq"))]
+#[inline]
 fn clmul64_intel(a: u64, b: u64) -> u64 {
     use core::arch::x86_64::*;
     // SAFETY: target_features "x86_64" and "pclmulqdq" are available in this function.
@@ -81,6 +83,7 @@ fn clmul64_intel(a: u64, b: u64) -> u64 {
     target_feature = "neon",
     target_feature = "aes"
 ))]
+#[inline]
 fn clmul_aarch64_neon(a: u64, b: u64) -> u128 {
     // SAFETY: target_features "neon" and "aes" are available in this function.
     unsafe { core::arch::aarch64::vmull_p64(a, b) }
@@ -89,6 +92,7 @@ fn clmul_aarch64_neon(a: u64, b: u64) -> u128 {
 // #[cfg(not(any(all(target_arch="aarch64", target_feature="neon"), all(target_arch = "x86_64", target_feature = "pclmulqdq")))]
 
 // Fallback implementation
+#[inline]
 fn clmul_nosimd(a: u64, b: u64) -> u128 {
     let mut tmp: u128 = b as u128;
     let mut result: u128 = 0;
