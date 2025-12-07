@@ -12,6 +12,7 @@ categories=["algorithms","encoding","hardware-support","mathematics","no-std"]
 description="Carry-less multiply for Rust, internally uses compiler intrinsics, with fallback if the CPU has no clmul instruction"
 
 [dependencies]
+core_detect = "1.0.0"
 
 [features]
 default=[]

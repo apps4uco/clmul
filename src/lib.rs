@@ -28,10 +28,10 @@ pub fn clmul(a: u64, b: u64) -> u128 {
     ))]
     return clmul_aarch64_neon(a, b);
 
-    #[cfg(any(target_arch = "x86", target_arch = "x86_64"))]
+    #[cfg(target_arch = "x86_64")]
     {
-        if is_x86_feature_detected!("pclmulqdq") {
-            return clmul_intel(a, b);
+        if core_detect::is_x86_feature_detected!("pclmulqdq") {
+            return unsafe { clmul_intel(a, b)};
         }
     }
 
@@ -39,7 +39,8 @@ pub fn clmul(a: u64, b: u64) -> u128 {
     return clmul_nosimd(a, b);
 }
 
-#[cfg(all(target_arch = "x86_64", target_feature = "pclmulqdq"))]
+#[cfg(target_arch = "x86_64")]
+#[target_feature(enable = "pclmulqdq")]
 #[inline]
 /// This intrinsic corresponds to the <c> VPCLMULQDQ </c> instruction.
 ///
