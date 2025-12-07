@@ -14,7 +14,7 @@ This crate has only been tested on Apple Silicon, please file a bug report if yo
 
 Its an operation that does a multiply of 2 integers using XOR to "add" the partial results.
 
-Current version: 0.5.0
+Current version: 0.6.0
 
 License: MIT OR Apache-2.0
 

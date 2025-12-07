@@ -12,13 +12,6 @@
 //!
 //! Maybe one day this functionality will be present in the core or std Rust libraries.
 
-#[cfg(feature = "clmul_inv")]
-pub mod clmul_inv;
-#[cfg(feature = "morton")]
-pub mod morton;
-#[cfg(feature = "transpose")]
-mod transpose;
-
 /**
  * clmul
  *
@@ -26,10 +19,7 @@ mod transpose;
  */
 #[inline]
 pub fn clmul(a: u64, b: u64) -> u128 {
-    //Intel’s PCLMULQDQ instruction (part of the CLMUL extension,
-
-    #[cfg(all(target_arch = "x86_64", target_feature = "pclmulqdq"))]
-    return clmul_intel(a, b);
+    //Intel's PCLMULQDQ instruction (part of the CLMUL extension,
 
     #[cfg(all(
         target_arch = "aarch64",
@@ -38,28 +28,19 @@ pub fn clmul(a: u64, b: u64) -> u128 {
     ))]
     return clmul_aarch64_neon(a, b);
 
-    //    #[allow(unreachable_code)]
-    #[cfg(not(any(
-        all(target_arch = "aarch64", target_feature = "neon"),
-        all(target_arch = "x86_64", target_feature = "pclmulqdq")
-    )))]
+    #[cfg(any(target_arch = "x86", target_arch = "x86_64"))]
+    {
+        if is_x86_feature_detected!("pclmulqdq") {
+            return clmul_intel(a, b);
+        }
+    }
+
+    #[allow(unreachable_code)]
     return clmul_nosimd(a, b);
 }
 
 #[cfg(all(target_arch = "x86_64", target_feature = "pclmulqdq"))]
 #[inline]
-fn clmul64_intel(a: u64, b: u64) -> u64 {
-    use core::arch::x86_64::*;
-    // SAFETY: target_features "x86_64" and "pclmulqdq" are available in this function.
-    unsafe {
-        _mm_cvtsi128_si64(_mm_clmulepi64_si128(
-            _mm_cvtsi64_si128(a as i64),
-            _mm_cvtsi64_si128(b as i64),
-            0,
-        )) as u64
-    }
-}
-
 /// This intrinsic corresponds to the <c> VPCLMULQDQ </c> instruction.
 ///
 /// \param __X
@@ -76,6 +57,17 @@ fn clmul64_intel(a: u64, b: u64) -> u64 {
 ///    Bit[4]=1 indicates that bits[127:64] of operand \a __Y are used.
 /// \returns The 128-bit integer vector containing the result of the carry-less
 ///    multiplication of the selected 64-bit values.
+fn clmul_intel(a: u64, b: u64) -> u128 {
+    use core::arch::x86_64::*;
+    // SAFETY: target_features "x86_64" and "pclmulqdq" are available in this function.
+    unsafe {
+        core::mem::transmute(_mm_clmulepi64_si128(
+            _mm_cvtsi64_si128(a as i64),
+            _mm_cvtsi64_si128(b as i64),
+            0,
+        ))
+    }
+}
 
 // Implementation of clmul using instrinsics (vmull_p64) on Arm Processor with AES
 #[cfg(all(
@@ -89,10 +81,9 @@ fn clmul_aarch64_neon(a: u64, b: u64) -> u128 {
     unsafe { core::arch::aarch64::vmull_p64(a, b) }
 }
 
-// #[cfg(not(any(all(target_arch="aarch64", target_feature="neon"), all(target_arch = "x86_64", target_feature = "pclmulqdq")))]
-
 // Fallback implementation
 #[inline]
+#[allow(dead_code)]
 fn clmul_nosimd(a: u64, b: u64) -> u128 {
     let mut tmp: u128 = b as u128;
     let mut result: u128 = 0;
@@ -140,26 +131,20 @@ mod tests {
     use super::*;
 
     #[test]
-    fn smoke_test() {
+    fn test_clmul_u8() {
         let result = clmul(2, 2);
         assert_eq!(result, 4);
     }
 
-    fn binary_to_gray(num: u32) -> u32 {
-        return num ^ (num >> 1); // The operator >> is shift right. The operator ^ is exclusive or.
+    #[test]
+    fn test_clmul_u32() {
+        let result = clmul(u32::MAX as u64, u32::MAX as u64);
+        assert_eq!(result, 6148914691236517205);
     }
 
-    fn gray_to_binary(num: u32) -> u32 {
-        todo!()
-    }
-
-    fn gray_to_binary32_no_intrinsic(num: u32) -> u32 {
-        let mut num = num;
-        num ^= num >> 16;
-        num ^= num >> 8;
-        num ^= num >> 4;
-        num ^= num >> 2;
-        num ^= num >> 1;
-        num
+    #[test]
+    fn test_clmul_u64() {
+        let result = clmul(u64::MAX as u64, u64::MAX as u64);
+        assert_eq!(result, 113427455640312821154458202477256070485);
     }
 }
