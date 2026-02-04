@@ -8,7 +8,18 @@ Otherwise known as:
 
 # WARNING! 
 
-This crate has only been tested on Apple Silicon, please file a bug report if you encounter any problems.
+This crate has been tested on Apple Silicon and Intel, however, please file a bug report if you encounter any problems.
+
+# Tracking Issue for uint_carryless_mul #152080 to be included in Rust std library
+
+<https://github.com/rust-lang/rust/issues/152080>
+
+
+# features
+
+Enable the llvm feature to use llvm intrinsics.
+
+This will create fn for all integer types, see documentation.
 
 # TL;DR;
 

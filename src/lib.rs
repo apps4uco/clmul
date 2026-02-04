@@ -1,3 +1,4 @@
+#![feature(link_llvm_intrinsics)]
 //#![no_std] TODO remove println from tests
 #![cfg_attr(not(test), no_std)]
 #![warn(missing_docs)]
@@ -11,6 +12,9 @@
 //! * Carry-Less Product
 //!
 //! Maybe one day this functionality will be present in the core or std Rust libraries.
+
+#[cfg(feature = "llvm")]
+pub mod llvm;
 
 /**
  * clmul
@@ -31,7 +35,7 @@ pub fn clmul(a: u64, b: u64) -> u128 {
     #[cfg(target_arch = "x86_64")]
     {
         if core_detect::is_x86_feature_detected!("pclmulqdq") {
-            return unsafe { clmul_intel(a, b)};
+            return unsafe { clmul_intel(a, b) };
         }
     }
 
