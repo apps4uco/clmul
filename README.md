@@ -19,13 +19,13 @@ This crate has been tested on Apple Silicon and Intel, however, please file a bu
 
 Enable the llvm feature to use llvm intrinsics.
 
-This will create fn for all integer types, see documentation.
+This will create fn for all unsigned integer types (except usize), see documentation.
 
 # TL;DR;
 
 Its an operation that does a multiply of 2 integers using XOR to "add" the partial results.
 
-Current version: 0.6.0
+Current version: 0.8.0
 
 License: MIT OR Apache-2.0
 
